@@ -7,12 +7,13 @@ require('dotenv').config()
 
 // middlewares
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        "https://time-traking-000.netlify.app"
-    ],
-    credentials: true
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    "https://time-traking-000.netlify.app"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
@@ -30,12 +31,44 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-  
+    const database = client.db("mediuswareDB");
+    const userCollection = database.collection("userCollection")
 
 
+    // getting user collection 
+    app.get('/user-collection', async (req, res) => {
+      const result = await userCollection.find().toArray();
+      // console.log(result);
+      res.send(result)
+    })
 
+    // posting user details 
+    app.post('/user-collection', async (req, res) => {
+      const userData = req.body;
+      console.log(userData);
+      const result = await userCollection.insertOne(userData)
+      res.send(result)
+    })
 
-
+   
+    // user data get by status 
+    app.get('/user-collection/:status', async (req, res) => {
+      const userStatus = req.params.status;
+      console.log(userStatus);
+    
+      let result;
+    
+      if (userStatus === 'all') {
+        // When status is 'all', fetch data with a specific sort order
+        result = await userCollection.find({}).sort({ status: 1 }).toArray();
+      } else {
+        // When status is specific (e.g., 'active' or 'completed'), fetch data without sorting
+        result = await userCollection.find({ status: userStatus }).toArray();
+      }
+    
+      console.log(result);
+      res.send(result);
+    });
 
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -49,9 +82,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("Running onnn....")
+  res.send("Running onnn....")
 })
 
 app.listen(port, () => {
-    console.log(`mediusware server is running on port ${port}`);
+  console.log(`mediusware server is running on port ${port}`);
 })
