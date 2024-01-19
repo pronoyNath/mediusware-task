@@ -60,7 +60,26 @@ async function run() {
     
       if (userStatus === 'all') {
         // When status is 'all', fetch data with a specific sort order
-        result = await userCollection.find({}).sort({ status: 1 }).toArray();
+        result = await userCollection.aggregate([
+          {
+            $addFields: {
+              customSort: {
+                $cond: {
+                  if: { $eq: ['$status', 'active'] },
+                  then: 1,
+                  else: {
+                    $cond: {
+                      if: { $eq: ['$status', 'completed'] },
+                      then: 2,
+                      else: 3 // or any other value for other statuses
+                    }
+                  }
+                }
+              }
+            }
+          },
+          { $sort: { customSort: 1 } }
+        ]).toArray();
       } else {
         // When status is specific (e.g., 'active' or 'completed'), fetch data without sorting
         result = await userCollection.find({ status: userStatus }).toArray();
@@ -69,6 +88,7 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+    
 
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
