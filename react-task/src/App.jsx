@@ -3,15 +3,20 @@ import Problem1 from "./components/Problem-1.jsx";
 import Menu from "./components/Menu.jsx";
 import Problem2 from "./components/Problem-2.jsx";
 import Index from "./components/Index.jsx";
+import ModalA from "./components/modal/ModalA.jsx";
+import ModalB from "./components/modal/ModalB.jsx";
 
 function App() {
   return (
     <>
-      <Routes>
+     <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/" element={<Menu />}>
           <Route path="problem-1" element={<Problem1 />} />
-          <Route path="problem-2" element={<Problem2 />} />
+          <Route path="problem-2" element={<Problem2 />}>
+            <Route path="/problem-2/modal/modalA" element={<ModalA />} />
+            <Route path="/problem-2/modal/modalB" element={<ModalB />} />
+          </Route>
         </Route>
       </Routes>
     </>
